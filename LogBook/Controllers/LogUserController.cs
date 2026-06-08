@@ -1,8 +1,6 @@
-﻿using LogBook.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using LogBook.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using LogBookServices.Interfaces;
 
 namespace LogBook.Controllers
 {
@@ -10,75 +8,45 @@ namespace LogBook.Controllers
     [ApiController]
     public class LogUserController : ControllerBase
     {
-        private readonly LogBookDBContext context;
-        public LogUserController(LogBookDBContext context)
+        private readonly ILogUserService _logUserService;
+
+        public LogUserController(ILogUserService logUserService)
         {
-            this.context = context;
+            _logUserService = logUserService;
         }
-
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LogUser>>> GetAll([FromQuery] string? UserID = null, [FromQuery] string? Email = null, [FromQuery] string? UserName= null)
+        public async Task<ActionResult<IEnumerable<LogUser>>> GetAll([FromQuery] string? UserID = null, [FromQuery] string? Email = null, [FromQuery] string? UserName = null)
         {
-            var logUsers = await context.LogUsers.ToListAsync();
-
-            if(!string.IsNullOrEmpty(UserID))
-            {
-                logUsers = logUsers.Where(lu => lu.UserID.ToString().Contains(UserID, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(Email))
-            {
-                logUsers = logUsers.Where(lu => lu.Email.ToString().Contains(Email, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if(!string.IsNullOrEmpty(UserName))
-            {
-                logUsers = logUsers.Where(lu => lu.UserName.ToString().Contains(UserName, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
+            var logUsers = await _logUserService.GetAllAsync(UserID, Email, UserName);
             return Ok(logUsers);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<LogUser>> GetById(int id)
         {
-            var logUser = await context.LogUsers.FindAsync(id);
+            var logUser = await _logUserService.GetByIdAsync(id);
             return logUser is null ? NotFound() : Ok(logUser);
         }
 
         [HttpPost]
         public async Task<ActionResult<LogUser>> Create(LogUser logUser)
         {
-            context.LogUsers.Add(logUser);
-            await context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = logUser.UserID }, logUser);
+            var createdLogUser = await _logUserService.CreateAsync(logUser);
+            return CreatedAtAction(nameof(GetById), new { id = createdLogUser.UserID}, createdLogUser);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, LogUser updatedLogUser)
         {
-            if (id != updatedLogUser.UserID)
-            {
-                return BadRequest();
-            }
-
-            context.Entry(updatedLogUser).State = EntityState.Modified;
-
-            await context.SaveChangesAsync();
-            return NoContent();
+            var result = await _logUserService.UpdateAsync(id, updatedLogUser);
+            return result ? NoContent() : BadRequest();
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var logUser = await context.LogUsers.FindAsync(id);
-            if (logUser is null)
-            {
-                return NotFound();
-            }
-            context.LogUsers.Remove(logUser);
-            await context.SaveChangesAsync();
-            return NoContent();
+            var result = await _logUserService.DeleteAsync(id);
+            return result ? NoContent() : NotFound();
         }
     }
 }

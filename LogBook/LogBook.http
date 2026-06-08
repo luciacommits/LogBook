@@ -1,15 +1,6 @@
-@LogBook_HostAddress = https://localhost:7191
+@LogBook_HostAddress = http://localhost:5116
 
-GET {{LogBook_HostAddress}}/weatherforecast/
+GET {{LogBook_HostAddress}}/api/topic
 Accept: application/json
-
-###
-POST {{LogBook_HostAddress}}/api/topic
-Content-Type: application/json
-
-{
-    "theme": "SQL",
-    "content": "SELECT"
-}
 
 ###

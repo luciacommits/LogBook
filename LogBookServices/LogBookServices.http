@@ -1,0 +1,6 @@
+@LogBookServices_HostAddress = http://localhost:5110
+
+GET {{LogBookServices_HostAddress}}/weapi/topic
+Accept: application/json
+
+###

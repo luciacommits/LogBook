@@ -1,8 +1,6 @@
-﻿using LogBook.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using LogBook.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using LogBookServices.Interfaces;
 
 namespace LogBook.Controllers
 {
@@ -10,75 +8,45 @@ namespace LogBook.Controllers
     [ApiController]
     public class ExerciseController : ControllerBase
     {
-        private readonly LogBookDBContext context;
-        public ExerciseController(LogBookDBContext context)
-        {
-            this.context = context;
-        }
+        private readonly IExerciseService _exerciseService;
 
+        public ExerciseController(IExerciseService exerciseService)
+        {
+            _exerciseService = exerciseService;
+        }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Exercise>>> GetAll([FromQuery] string? ExerciseID = null, [FromQuery] string? ExerciseDescription = null, [FromQuery] string? Result = null)
         {
-            var exercises = await context.Exercises.ToListAsync();
-
-            if (!string.IsNullOrEmpty(ExerciseID))
-            {
-                exercises = exercises.Where(e => e.ExerciseID.ToString().Contains(ExerciseID, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(ExerciseDescription))
-            {
-                exercises = exercises.Where(e => e.ExerciseDescription.ToString().Contains(ExerciseDescription, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(Result))
-            {
-                exercises = exercises.Where(e => e.Result.ToString().Contains(Result, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
+            var exercises = await _exerciseService.GetAllAsync(ExerciseID, ExerciseDescription, Result);
             return Ok(exercises);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Exercise>> GetById(int id)
         {
-            var exercise = await context.Exercises.FindAsync(id);
+            var exercise = await _exerciseService.GetByIdAsync(id);
             return exercise is null ? NotFound() : Ok(exercise);
         }
 
         [HttpPost]
         public async Task<ActionResult<Exercise>> Create(Exercise exercise)
         {
-            context.Exercises.Add(exercise);
-            await context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = exercise.ExerciseID }, exercise);
+            var createdExercise = await _exerciseService.CreateAsync(exercise);
+            return CreatedAtAction(nameof(GetById), new { id = createdExercise.ExerciseID}, createdExercise);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, Exercise updatedExercise)
         {
-            if (id != updatedExercise.ExerciseID)
-            {
-                return BadRequest();
-            }
-
-            context.Entry(updatedExercise).State = EntityState.Modified;
-
-            await context.SaveChangesAsync();
-            return NoContent();
+            var result = await _exerciseService.UpdateAsync(id, updatedExercise);
+            return result ? NoContent() : BadRequest();
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var exercise = await context.Exercises.FindAsync(id);
-            if (exercise is null)
-            {
-                return NotFound();
-            }
-            context.Exercises.Remove(exercise);
-            await context.SaveChangesAsync();
-            return NoContent();
+            var result = await _exerciseService.DeleteAsync(id);
+            return result ? NoContent() : NotFound();
         }
     }
 }

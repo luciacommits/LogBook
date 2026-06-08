@@ -1,3 +1,4 @@
 <Solution>
-  <Project Path="LogBook/LogBook.csproj" />
+  <Project Path="LogBook/LogBookAPI.csproj" />
+  <Project Path="LogBookServices/LogBookServices.csproj" Id="3debfe1e-320a-4dbe-87a9-28480e236232" />
 </Solution>

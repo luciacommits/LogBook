@@ -1,8 +1,6 @@
-﻿using LogBook.Data;
+﻿using Microsoft.AspNetCore.Mvc;
 using LogBook.Models;
-using Microsoft.AspNetCore.Http;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
+using LogBookServices.Interfaces;
 
 namespace LogBook.Controllers
 {
@@ -10,75 +8,45 @@ namespace LogBook.Controllers
     [ApiController]
     public class TopicController : ControllerBase
     {
-        private readonly LogBookDBContext context;
-        public TopicController(LogBookDBContext context)
-        {
-            this.context = context;
-        }
+        private readonly ITopicService _topicService;
 
+        public TopicController(ITopicService topicService)
+        {
+            _topicService = topicService;
+        }
         [HttpGet]
         public async Task<ActionResult<IEnumerable<Topic>>> GetAll([FromQuery] string? TopicID = null, [FromQuery] string? Theme = null, [FromQuery] string? Content = null)
         {
-            var topics = await context.Topics.ToListAsync();
-
-            if (!string.IsNullOrEmpty(TopicID))
-            {
-                topics = topics.Where(t => t.TopicID.ToString().Contains(TopicID, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if (!string.IsNullOrEmpty(Theme))
-            {
-                topics = topics.Where(t => t.Theme.ToString().Contains(Theme, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
-            if(!string.IsNullOrEmpty(Content))
-            {
-                topics = topics.Where(t => t.Content.ToString().Contains(Content, StringComparison.OrdinalIgnoreCase)).ToList();
-            }
-
+            var topics = await _topicService.GetAllAsync(TopicID, Theme, Content);
             return Ok(topics);
         }
 
         [HttpGet("{id}")]
         public async Task<ActionResult<Topic>> GetById(int id)
         {
-            var topic = await context.Topics.FindAsync(id);
+            var topic = await _topicService.GetByIdAsync(id);
             return topic is null ? NotFound() : Ok(topic);
         }
 
         [HttpPost]
         public async Task<ActionResult<Topic>> Create(Topic topic)
         {
-            context.Topics.Add(topic);
-            await context.SaveChangesAsync();
-            return CreatedAtAction(nameof(GetById), new { id = topic.TopicID }, topic);
+            var createdTopic = await _topicService.CreateAsync(topic);
+            return CreatedAtAction(nameof(GetById), new { id = createdTopic.TopicID }, createdTopic);
         }
 
         [HttpPut("{id}")]
         public async Task<ActionResult> Update(int id, Topic updatedTopic)
         {
-            if (id != updatedTopic.TopicID)
-            {
-                return BadRequest();
-            }
-
-            context.Entry(updatedTopic).State = EntityState.Modified;
-
-            await context.SaveChangesAsync();
-            return NoContent();
+            var result = await _topicService.UpdateAsync(id, updatedTopic);
+            return result ? NoContent() : BadRequest();
         }
 
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {
-            var topic = await context.Topics.FindAsync(id);
-            if (topic is null)
-            {
-                return NotFound();
-            }
-            context.Topics.Remove(topic);
-            await context.SaveChangesAsync();
-            return NoContent();
+            var result = await _topicService.DeleteAsync(id);
+            return result ? NoContent() : NotFound();
         }
     }
 }
