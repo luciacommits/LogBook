@@ -15,9 +15,9 @@ namespace LogBook.Controllers
             _logUserService = logUserService;
         }
         [HttpGet]
-        public async Task<ActionResult<IEnumerable<LogUser>>> GetAll([FromQuery] string? UserID = null, [FromQuery] string? Email = null, [FromQuery] string? UserName = null)
+        public async Task<ActionResult<IEnumerable<LogUser>>> GetAll([FromQuery] string? UserID = null, [FromQuery] string? Email = null, [FromQuery] string? UserName = null, [FromQuery] string Pass = null)
         {
-            var logUsers = await _logUserService.GetAllAsync(UserID, Email, UserName);
+            var logUsers = await _logUserService.GetAllAsync(UserID, Email, UserName, Pass);
             return Ok(logUsers);
         }
 

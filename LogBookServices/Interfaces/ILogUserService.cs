@@ -4,7 +4,7 @@ namespace LogBookServices.Interfaces
 {
     public interface ILogUserService
     {
-        Task<IEnumerable<LogUser>> GetAllAsync(string? userID, string? email, string? userName);
+        Task<IEnumerable<LogUser>> GetAllAsync(string? userID, string? email, string? userName, string Pass);
 
         Task<LogUser?> GetByIdAsync(int id);
 

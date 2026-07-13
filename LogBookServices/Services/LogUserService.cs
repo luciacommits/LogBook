@@ -15,7 +15,7 @@ namespace LogBookServices.Services
         {
             _context = context;
         }
-        public async Task<IEnumerable<LogUser>> GetAllAsync(string? userID, string? email, string? userName)
+        public async Task<IEnumerable<LogUser>> GetAllAsync(string? userID, string? email, string? userName, string Pass)
         {
             var logUsers = await _context.LogUsers.ToListAsync();
 
@@ -32,6 +32,11 @@ namespace LogBookServices.Services
             if (!string.IsNullOrEmpty(userName))
             {
                 logUsers = logUsers.Where(lu => lu.UserName.ToString().Contains(userName, StringComparison.OrdinalIgnoreCase)).ToList();
+            }
+
+            if (!string.IsNullOrEmpty(Pass))
+            {
+                logUsers = logUsers.Where(lu => lu.Pass.ToString().Contains(Pass, StringComparison.OrdinalIgnoreCase)).ToList();
             }
 
             return logUsers;
