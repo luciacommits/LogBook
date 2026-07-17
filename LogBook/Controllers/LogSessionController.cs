@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LogBook.Models;
 using LogBookServices.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LogBook.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class LogSessionController : ControllerBase
     {
         private readonly ILogSessionService _logSessionService;

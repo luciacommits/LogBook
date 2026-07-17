@@ -1,11 +1,13 @@
 ﻿using Microsoft.AspNetCore.Mvc;
 using LogBook.Models;
 using LogBookServices.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 
 namespace LogBook.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class ExerciseController : ControllerBase
     {
         private readonly IExerciseService _exerciseService;
