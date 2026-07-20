@@ -4,6 +4,6 @@ namespace LogBookServices.Interfaces
 {
     public interface IAuthenticationService
     {
-        Task<AuthResponseDto?> LoginAsync(LoginRequestDto request);
+        Task<AuthResponseDto?> Authenticate(LoginRequestDto request);
     }
 }

@@ -1,5 +1,6 @@
 ﻿using LogBookServices.DTOs;
 using LogBookServices.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 [ApiController]
@@ -13,10 +14,11 @@ public class AuthController : ControllerBase
         _authService = authService;
     }
 
+    [AllowAnonymous]
     [HttpPost("login")]
-    public async Task<IActionResult> Login([FromBody] LoginRequestDto request)
+    public async Task<ActionResult<AuthResponseDto>> Login(LoginRequestDto request)
     {
-        var result = await _authService.LoginAsync(request);
+        var result = await _authService.Authenticate(request);
 
         if (result == null)
             return Unauthorized("Invalid username or password.");
