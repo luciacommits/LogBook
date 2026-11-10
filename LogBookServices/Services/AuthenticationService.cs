@@ -30,10 +30,10 @@ namespace LogBookServices.Services
             if (userAccount is null || !PasswordHashHandler.VerifyPassword(request.Password, userAccount.Pass))
                 return null;
 
-            var issuer = _configuration["JwtConfig:Issuer"];
-            var audience = _configuration["JwtConfig:Audience"];
-            var key = _configuration["JwtConfig:Key"];
-            var tokenValidityMins = _configuration.GetValue<int>("JwtConfig:TokenValidityMins");
+            var issuer = _configuration["Jwt:Issuer"];
+            var audience = _configuration["Jwt:Audience"];
+            var key = _configuration["Jwt:Key"];
+            var tokenValidityMins = _configuration.GetValue<int>("Jwt:TokenValidityMins");
             var tokenExpiryTimeStamp = DateTime.UtcNow.AddMinutes(tokenValidityMins);
 
             var tokenDescriptor = new SecurityTokenDescriptor

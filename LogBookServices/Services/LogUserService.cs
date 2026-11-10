@@ -1,5 +1,6 @@
 ﻿using LogBook.Data;
 using LogBook.Models;
+using LogBookServices.Handlers;
 using LogBookServices.Interfaces;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -49,6 +50,7 @@ namespace LogBookServices.Services
 
         public async Task<LogUser> CreateAsync(LogUser logUser)
         {
+            logUser.Pass = PasswordHashHandler.HashPassword(logUser.Pass);
             _context.LogUsers.Add(logUser);
             await _context.SaveChangesAsync();
             return logUser;
